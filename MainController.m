@@ -18,8 +18,14 @@ projectData = true;
 % Relative path for stored data
 pointPath = './LidarData/KittiSet1/';
 if not(exist(pointPath, 'dir'))
-   disp("datapath not valid");
-    return; 
+    if exist([pointPath(1:(end-1)) '.zip'], 'file')
+        disp("Data not extracted");
+        UnzipData;
+    else
+        disp("No data found");
+        return;
+    end
+  
 end
 
 
@@ -44,9 +50,9 @@ if (projectData)
     threshold = 0.7;
     minDim([1 2]) = [W,H];
     projection = cell(1,length(lidarPointClouds));
-
+    
     numPointClouds = length(lidarPointClouds);
-
+    
     progressBar = waitbar(0, "Projecting 3D to 2D: " + 0 + "/" + numPointClouds);
     for i = 1:numPointClouds
         waitbar((i-1)/numPointClouds, progressBar, "Projecting scene: " + i + "/" + numPointClouds);
@@ -55,11 +61,12 @@ if (projectData)
         %projection{j} =  Project3Dto2Dsphere(x,y,z,H,W,intensity);
         sizeFrame = size(projection{i});
         minDim = min([minDim; sizeFrame]);
-    end    
+    end
     close(progressBar);
-
+    
     
     ImageSequenceToVideo(projection, 10, minDim(1), minDim(2), 'unfoldProjectionV4.avi',  'Grayscale AVI');
+    winopen('Clips\');
     %  ImageSequenceToVideo(pictureData, 10,  374,1241, 'pictures.avi', 'Uncompressed AVI');
 end
 
